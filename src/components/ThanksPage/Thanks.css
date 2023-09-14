@@ -1,0 +1,40 @@
+.thanks {
+    position: absolute;
+    width: 60%;
+    height: 60vh;
+    background: #0c002b;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 100px;
+    text-align: center;
+}
+
+.thanks h2,
+.thanks p {
+    color: #fff;
+}
+
+.thanks h2 {
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.thanks p {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+@media(max-width: 768px) {
+    .thanks {
+        border-radius: 10px;
+        width: 95%;
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .thanks h2 {
+        font-size: 20px;
+        margin-top: 40%;
+        font-weight: 500;
+    }
+}

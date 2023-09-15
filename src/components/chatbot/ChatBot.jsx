@@ -18,10 +18,7 @@ const ChatBot = () => {
     const [currentStep, setCurrentStep] = useState(0);
     const date = <input className="date-picker" type="date" />
     const steps = [
-        <>
-            <span>Pick a slot! (morning, afternoon, and evening) </span>
-            {date}
-        </>,
+        "Pick a slot! (morning, afternoon, and evening)",
         "What is your name?",
         "What is your age?",
         "Roll No",
@@ -30,12 +27,53 @@ const ChatBot = () => {
 
     const messageContainerRef = useRef(null);
 
+    const handleYesButtonClick = () => {
+        const newMessages = [...messages, { text: "Yes", isBot: false }];
+        setMessages(newMessages);
+    
+        if (currentStep === 0) {
+            setTimeout(() => {
+                const botMessage = steps[0];
+                setMessages([...newMessages, { text: botMessage, isBot: true }]);
+                setCurrentStep(currentStep + 1);
+                scrollToBottom();
+            }, 500);
+        }
+    };
+    
+    const handleNoButtonClick = () => {
+        const newMessages = [...messages, { text: "No", isBot: false }];
+        setMessages(newMessages);
+    
+        if (currentStep === 0) {
+            setTimeout(() => {
+                const botMessage = steps[currentStep + 2];
+                setMessages([...newMessages, { text: botMessage, isBot: true }]);
+                setCurrentStep(currentStep + 3);
+                scrollToBottom();
+            }, 500);
+        }
+    };
+    const handleDayButton = (selectedDay) => {
+        const newMessages = [...messages, { text: selectedDay, isBot: false }];
+        setMessages(newMessages);
+    
+        if (currentStep === 1) {
+            setTimeout(() => {
+                const botMessage = steps[1]; // Asking for name
+                setMessages([...newMessages, { text: botMessage, isBot: true }]);
+                setCurrentStep(currentStep + 1);
+                scrollToBottom();
+            }, 500);
+        }
+    };
+    
+ 
     const handleSend = () => {
         if (userInput.trim() === "") return;
         const trimmedInput = userInput.trim();
 
         if (currentStep === 0 && trimmedInput.toLowerCase() !== "got it") {
-            // If it's the first step and the message is not "Got it," do nothing.
             setUserInput("");
             return;
         }
@@ -51,15 +89,23 @@ const ChatBot = () => {
                 scrollToBottom();
             }, 1000);
         }
+
+        if (currentStep === steps.length - 1) {
+            const name = encodeURIComponent(messages[5].text);
+            const age = encodeURIComponent(messages[7].text);
+            const url = `/Thanks?name=${name}&age=${age}`;
+
+            setTimeout(() => {
+                window.location.href = url;
+            }, 5000);
+        }
     };
 
     const handleKeyPress = (e) => {
-        console.log(messages)
         if (e.key === "Enter") {
             const trimmedInput = userInput.trim();
 
             if (currentStep === 0 && trimmedInput.toLowerCase() !== "got it") {
-                // If it's the first step and the message is not "Got it," do nothing.
                 setUserInput("");
                 return;
             }
@@ -72,7 +118,7 @@ const ChatBot = () => {
                 setDetails({ ...details, age: userInput });
             }
             setUserInput("");
-            console.log(messages);
+
             if (currentStep < steps.length) {
                 const botMessage = steps[currentStep];
                 setTimeout(() => {
@@ -81,22 +127,16 @@ const ChatBot = () => {
                     scrollToBottom();
                 }, 1000);
             }
-            console.log(details);
+
             if (currentStep === steps.length - 1) {
                 const name = encodeURIComponent(messages[5].text);
                 const age = encodeURIComponent(messages[7].text);
-
-                // Build the URL with query parameters
                 const url = `/Thanks?name=${name}&age=${age}`;
 
-                // Redirect to the target page with the data
                 setTimeout(() => {
                     window.location.href = url;
                 }, 5000);
-
-
             }
-
         }
     };
 
@@ -110,28 +150,48 @@ const ChatBot = () => {
         scrollToBottom();
     }, [messages]);
 
-
-
-
     return (
         <div className="chatBotContainer">
             <div className='chatheader'>
                 <h2>Student Enrollment System</h2>
             </div>
-            <div className='messageconatainer' ref={messageContainerRef}>
-                <div className='message'>
-                    {messages.map((message, index) => (
-                        <div key={index} className={message.isBot ? 'bot-message' : 'user-message'}>
-                            <div className={message.isBot ? 'bot-image' : 'user-image'}>
-                                <img src={message.isBot ? botimage : userImage} className='botimage' alt="bot" draggable="false" />
+
+
+                <div className='messageconatainer' ref={messageContainerRef}>
+                    <div className='message'>
+                        {messages.map((message, index) => (
+                            <div key={index} className={message.isBot ? 'bot-message' : 'user-message'}>
+                                <div className={message.isBot ? 'bot-image' : 'user-image'}>
+                                    <img src={message.isBot ? botimage : userImage} className='botimage' alt="bot" draggable="false" />
+                                </div>
+                                <div className='displayed-message'>
+                                    {message.text}
+                                </div>
                             </div>
-                            <div className='displayed-message'>
-                                {message.text}
+                        ))}
+                        {currentStep === 0 && (
+                            <div className='button-container'>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button className='yes-button' onClick={handleYesButtonClick}>Yes</button>
+                                <button className='no-button' onClick={handleNoButtonClick}>No</button>
                             </div>
-                        </div>
-                    ))}
+                        )}
+                        {currentStep === 1 && (
+                            <div className='button-container'>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button className='yes-button' onClick={() => handleDayButton('Mon')}>Mon</button>
+                                <button className='yes-button' onClick={() => handleDayButton('Tue')}>Tue</button>
+                                <button className='yes-button' onClick={() => handleDayButton('Wed')}>Wed</button><br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button className='yes-button' onClick={() => handleDayButton('Thu')}>Thu</button>
+                                <button className='yes-button' onClick={() => handleDayButton('Fri')}>Fri</button>
+                                <button className='yes-button' onClick={() => handleDayButton('Sat')}>Sat</button>
+                            </div>
+                        )}
+
+                    </div>
                 </div>
-            </div>
+
+
+
+           
 
             <div className='userchatcontainer'>
                 <input
@@ -145,7 +205,6 @@ const ChatBot = () => {
                     <img src={sendButton} alt="sendButton" draggable="false" />
                 </div>
             </div>
-
         </div>
     );
 }
